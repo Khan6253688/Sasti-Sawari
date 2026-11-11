@@ -1,0 +1,6 @@
+{
+  "name": "Sasti Sawari",
+  "description": "Sasti Sawari - Bike ride booking, fare calculator, and rider business platform across all major cities of Pakistan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

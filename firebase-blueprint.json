@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "rider": {
+      "title": "Rider",
+      "description": "Registered motorcycle rider with 30-day subscription and stand details",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID" },
+        "riderId": { "type": "string", "description": "Unique rider identifier e.g. SW-1001" },
+        "name": { "type": "string", "description": "Full name of the rider" },
+        "phone": { "type": "string", "description": "Contact mobile number" },
+        "cityId": { "type": "string", "description": "Operating city identifier" },
+        "bikeModel": { "type": "string", "description": "Motorcycle make and model" },
+        "plate": { "type": "string", "description": "Vehicle registration plate" },
+        "standName": { "type": "string", "description": "Official stand name" },
+        "standAddress": { "type": "string", "description": "Physical stand address" },
+        "subscriptionStatus": { "type": "string", "enum": ["ACTIVE", "PENDING", "EXPIRED", "SUSPENDED"] },
+        "subscriptionPrice": { "type": "number", "description": "Monthly fee in PKR" },
+        "activatedAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "lastPaymentTxnId": { "type": "string" },
+        "lastPaymentMethod": { "type": "string" },
+        "isOnline": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "riderId", "name", "phone", "cityId", "subscriptionStatus"]
+    },
+    "payment": {
+      "title": "Payment",
+      "description": "Subscription payment verification record for Rs. 100 30-day access",
+      "type": "object",
+      "properties": {
+        "paymentId": { "type": "string" },
+        "riderId": { "type": "string" },
+        "userId": { "type": "string" },
+        "riderName": { "type": "string" },
+        "riderPhone": { "type": "string" },
+        "amount": { "type": "number" },
+        "transactionId": { "type": "string" },
+        "paymentMethod": { "type": "string", "enum": ["JazzCash", "Easypaisa", "Bank"] },
+        "proofUri": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["riderId", "userId", "amount", "transactionId", "paymentMethod", "status"]
+    },
+    "admin_config": {
+      "title": "AdminConfig",
+      "description": "System-wide subscription fee and official payment account details",
+      "type": "object",
+      "properties": {
+        "monthlyFee": { "type": "number" },
+        "subscriptionDurationDays": { "type": "number" },
+        "jazzCashNumber": { "type": "string" },
+        "jazzCashTitle": { "type": "string" },
+        "easypaisaNumber": { "type": "string" },
+        "easypaisaTitle": { "type": "string" },
+        "bankName": { "type": "string" },
+        "bankAccountTitle": { "type": "string" },
+        "bankIban": { "type": "string" },
+        "totalRevenueCollected": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["monthlyFee", "subscriptionDurationDays"]
+    }
+  },
+  "firestore": {
+    "/riders/{riderId}": {
+      "schema": { "$ref": "#/entities/rider" },
+      "description": "Rider accounts and subscription tracking"
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/payment" },
+      "description": "Subscription verification requests and approvals"
+    },
+    "/system_config/{configId}": {
+      "schema": { "$ref": "#/entities/admin_config" },
+      "description": "Global administration and payment parameters"
+    }
+  }
+}

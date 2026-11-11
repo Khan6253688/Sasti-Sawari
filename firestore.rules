@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidRider(data) {
+      return data.userId is string && data.userId.size() > 0 &&
+             data.riderId is string && data.riderId.size() > 0 &&
+             data.name is string && data.name.size() > 0 &&
+             data.phone is string && data.phone.size() > 0 &&
+             data.cityId is string && data.cityId.size() > 0 &&
+             data.subscriptionStatus in ['ACTIVE', 'PENDING', 'EXPIRED', 'SUSPENDED'];
+    }
+
+    function isValidPayment(data) {
+      return data.riderId is string && data.riderId.size() > 0 &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.amount is number && data.amount > 0 &&
+             data.transactionId is string && data.transactionId.size() > 0 &&
+             data.paymentMethod in ['JazzCash', 'Easypaisa', 'Bank'] &&
+             data.status in ['PENDING', 'APPROVED', 'REJECTED'];
+    }
+
+    // Riders Collection
+    match /riders/{riderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       isValidRider(request.resource.data);
+      allow update: if isAuthenticated() && 
+                       isValidRider(request.resource.data);
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Payments Verification Collection
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       isValidPayment(request.resource.data);
+      allow update: if isAuthenticated() && isValidPayment(request.resource.data);
+      allow delete: if false;
+    }
+
+    // System / Admin Config
+    match /system_config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+  }
+}
